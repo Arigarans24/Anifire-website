@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
@@ -252,7 +253,7 @@ function AnimeDetailContent() {
       <StreamNav />
 
       <div className={styles.backdrop} aria-hidden="true">
-        <img src={heroImage} alt="" className={styles.backdropImg} />
+        <Image src={heroImage} alt="" className={styles.backdropImg} width={1600} height={900} unoptimized />
         <div className={styles.backdropScrim} />
       </div>
 
@@ -261,7 +262,7 @@ function AnimeDetailContent() {
         <main>
           <div className={styles.headerRow}>
             <div className={styles.poster}>
-              <img src={posterImage} alt={title} className={styles.posterImg} />
+              <Image src={posterImage} alt={title} className={styles.posterImg} width={420} height={620} unoptimized />
               <span className={styles.posterBadge}>
                 <Flame size={20} fill="currentColor" />
               </span>
@@ -270,7 +271,7 @@ function AnimeDetailContent() {
             <div>
               {logoImage ? (
                 <h1 className={styles.title} aria-label={title}>
-                  <img src={logoImage} alt={title} className={styles.titleLogo} />
+                  <Image src={logoImage} alt={title} className={styles.titleLogo} width={500} height={120} unoptimized />
                 </h1>
               ) : (
                 <h1 className={styles.title}>{title}</h1>
@@ -382,10 +383,13 @@ function AnimeDetailContent() {
                 className={styles.epCard}
               >
                 <div className={styles.epThumb}>
-                  <img
+                  <Image
                     src={ep.thumbnail || posterImage}
                     alt=""
                     className={styles.epThumbImg}
+                    width={320}
+                    height={180}
+                    unoptimized
                   />
                   <span className={styles.epPlay}>
                     <Play size={20} fill="currentColor" />
@@ -410,7 +414,7 @@ function AnimeDetailContent() {
               ? latest.map((r) => (
                   <Link key={r.id} href={r.href} className={styles.newEp}>
                     <div className={styles.newEpThumb}>
-                      <img src={r.poster} alt={r.title} />
+                      <Image src={r.poster} alt={r.title} width={120} height={170} unoptimized />
                     </div>
                     <div className={styles.newEpBody}>
                       <span className={styles.newEpTitle}>{r.title}</span>
@@ -428,7 +432,7 @@ function AnimeDetailContent() {
               : newEpisodes.map((m, i) => (
                   <Link key={m.id} href={`/anime/${m.id}`} className={styles.newEp}>
                     <div className={styles.newEpThumb}>
-                      <img src={m.imageUrl} alt={m.title} />
+                      <Image src={m.imageUrl} alt={m.title} width={120} height={170} unoptimized />
                     </div>
                     <div className={styles.newEpBody}>
                       <span className={styles.newEpTitle}>{m.title}</span>
@@ -449,7 +453,7 @@ function AnimeDetailContent() {
             <div className={styles.recGrid}>
               {recommended.map((m) => (
                 <Link key={m.id} href={`/anime/${m.id}`} className={styles.recCard}>
-                  <img src={m.imageUrl} alt={m.title} />
+                  <Image src={m.imageUrl} alt={m.title} width={220} height={310} unoptimized />
                   <div className={styles.recScrim} />
                   <span className={styles.recTitle}>{m.title}</span>
                 </Link>

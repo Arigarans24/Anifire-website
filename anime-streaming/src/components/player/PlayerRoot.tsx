@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import {
   useCallback,
   useEffect,
@@ -528,11 +529,14 @@ export default function PlayerRoot() {
       {/* When paused, cover the frozen frame with the poster art — looks cleaner
           than a paused mid-scene. Clicks pass through to toggle play. */}
       {!playing && source.poster ? (
-        <img
+        <Image
           src={source.poster}
           alt=""
           aria-hidden="true"
           className={styles.pausePoster}
+          width={1600}
+          height={900}
+          unoptimized
         />
       ) : null}
 

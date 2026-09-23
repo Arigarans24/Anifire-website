@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useMemo, useRef, useState, useEffect } from "react";
 import { gsap } from "gsap";
 import { ListPlus, Search, Star, X } from "lucide-react";
@@ -30,11 +31,6 @@ export default function CatalogView({
   initialQuery?: string;
 }) {
   const [query, setQuery] = useState(initialQuery);
-
-  // Sync the search box when the URL query changes (navbar search).
-  useEffect(() => {
-    setQuery(initialQuery);
-  }, [initialQuery]);
   const [genres, setGenres] = useState<Set<string>>(new Set());
   const [types, setTypes] = useState<Set<string>>(new Set());
   const [statuses, setStatuses] = useState<Set<string>>(new Set());
@@ -118,7 +114,7 @@ export default function CatalogView({
                 }}
               >
                 <div className={styles.catPoster}>
-                  <img src={m.imageUrl} alt={m.title} loading="lazy" />
+                  <Image src={m.imageUrl} alt={m.title} width={300} height={420} loading="lazy" unoptimized />
                 </div>
                 <div className={styles.catBody}>
                   <h3 className={styles.catTitle}>{m.title}</h3>

@@ -43,3 +43,10 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+// Fix: Windows sets user.timezone to "Asia/Calcutta" (deprecated alias).
+// PostgreSQL 16 only knows "Asia/Kolkata" and rejects the old name at connect time.
+// Forcing UTC here makes the JDBC driver send a timezone that Postgres always accepts.
+tasks.named('bootRun') {
+    jvmArgs('-Duser.timezone=UTC')
+}

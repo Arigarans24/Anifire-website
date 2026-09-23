@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
@@ -76,7 +77,7 @@ function TitleModalBody({
 
         {/* Mini player */}
         <div className={styles.modalHero}>
-          <img src={movie.heroImageUrl} alt="" className={styles.modalHeroImg} />
+          <Image src={movie.heroImageUrl} alt="" className={styles.modalHeroImg} width={1600} height={900} unoptimized />
           <div className={styles.modalHeroScrim} />
 
           <button

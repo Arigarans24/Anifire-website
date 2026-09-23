@@ -1,7 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { gsap } from "gsap";
 import {
@@ -51,7 +52,7 @@ function TitleCard({
         }
       }}
     >
-      <img src={movie.imageUrl} alt={movie.title} className={styles.cardImg} />
+      <Image src={movie.imageUrl} alt={movie.title} className={styles.cardImg} width={320} height={480} unoptimized />
       <span className={styles.cardYear}>{movie.year}</span>
 
       <div className={styles.cardInfo}>
@@ -134,9 +135,10 @@ function HeroPreviewVideo({
 
     let cancelled = false;
     let cleanup: (() => void) | null = null;
-    setRevealed(false);
     const onPlaying = () => !cancelled && setRevealed(true);
+    const onPause = () => !cancelled && setRevealed(false);
     video.addEventListener("playing", onPlaying);
+    video.addEventListener("pause", onPause);
     const play = () => {
       if (!cancelled && playing) video.play().catch(() => {});
     };
@@ -156,7 +158,8 @@ function HeroPreviewVideo({
       return () => {
         cancelled = true;
         video.removeEventListener("loadedmetadata", startAtPreview);
-      video.removeEventListener("playing", onPlaying);
+        video.removeEventListener("playing", onPlaying);
+        video.removeEventListener("pause", onPause);
         video.removeAttribute("src");
         video.load();
       };
@@ -168,7 +171,8 @@ function HeroPreviewVideo({
       return () => {
         cancelled = true;
         video.removeEventListener("loadedmetadata", startAtPreview);
-      video.removeEventListener("playing", onPlaying);
+        video.removeEventListener("playing", onPlaying);
+        video.removeEventListener("pause", onPause);
         video.removeAttribute("src");
         video.load();
       };
@@ -192,30 +196,23 @@ function HeroPreviewVideo({
       cleanup?.();
       video.removeEventListener("loadedmetadata", startAtPreview);
       video.removeEventListener("playing", onPlaying);
+      video.removeEventListener("pause", onPause);
       video.removeAttribute("src");
       video.load();
     };
-  }, [src]);
+  }, [src, playing]);
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
     video.muted = muted;
     video.volume = muted ? 0 : 0.28;
-    if (!muted && playing) video.play().catch(() => {});
-  }, [muted, playing]);
-
-  // Play / pause the preview as the banner-only toggle flips.
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    if (playing) {
+    if (!muted && playing) {
       video.play().catch(() => {});
-    } else {
+    } else if (!playing) {
       video.pause();
-      setRevealed(false);
     }
-  }, [playing]);
+  }, [muted, playing]);
 
   if (!src) return null;
 
@@ -298,20 +295,22 @@ function StreamExperience() {
   const [movies, setMovies] = useState<Movie[]>([]);
   const [rows, setRows] = useState<Row[]>([]);
   const [preview, setPreview] = useState<{ movieId: number; src: string } | null>(null);
+  const router = useRouter();
   const searchParams = useSearchParams();
   const urlView = searchParams.get("view");
   const urlQuery = searchParams.get("q") ?? "";
-  const [view, setView] = useState<"rows" | "catalog" | "mylist">(
-    urlView === "catalog" ? "catalog" : urlView === "mylist" ? "mylist" : "rows"
-  );
+  const view = urlView === "catalog" ? "catalog" : urlView === "mylist" ? "mylist" : "rows";
   const { list: myListIds } = useMyList();
 
-  // React to nav/search navigation (?view=catalog&q=...) without a full reload.
-  useEffect(() => {
-    if (urlView === "catalog") setView("catalog");
-    else if (urlView === "mylist") setView("mylist");
-    else if (urlView === "rows" || urlView === "genres") setView("rows");
-  }, [urlView]);
+  const switchView = useCallback(
+    (nextView: "rows" | "catalog" | "mylist") => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("view", nextView);
+      const nextUrl = params.toString() ? `/stream?${params.toString()}` : "/stream";
+      router.push(nextUrl);
+    },
+    [router, searchParams]
+  );
   const contentRef = useRef<HTMLDivElement>(null);
   const bgRef = useRef<HTMLDivElement>(null);
 
@@ -418,7 +417,7 @@ function StreamExperience() {
       {/* ══════════ HERO ══════════ */}
       <section className={styles.hero}>
         <div ref={bgRef} className={styles.heroBg} key={active.id}>
-          <img src={active.heroImageUrl} alt="" className={styles.heroBgImg} />
+          <Image src={active.heroImageUrl} alt="" className={styles.heroBgImg} width={1600} height={900} unoptimized />
           <HeroPreviewVideo
             src={preview?.movieId === active.id ? preview.src : null}
             poster={active.heroImageUrl}
@@ -437,7 +436,7 @@ function StreamExperience() {
             ))}
           </div>
           {active.logoImageUrl ? (
-            <img src={active.logoImageUrl} alt={active.title} className={styles.heroLogo} />
+            <Image src={active.logoImageUrl} alt={active.title} className={styles.heroLogo} width={500} height={140} unoptimized />
           ) : (
             <h1 className={styles.heroTitle}>{active.title}</h1>
           )}
@@ -533,7 +532,7 @@ function StreamExperience() {
             role="tab"
             aria-selected={view === "rows"}
             className={`${styles.viewBtn} ${view === "rows" ? styles.viewBtnOn : ""}`}
-            onClick={() => setView("rows")}
+            onClick={() => switchView("rows")}
           >
             <LayoutGrid size={16} /> Rows
           </button>
@@ -542,7 +541,7 @@ function StreamExperience() {
             role="tab"
             aria-selected={view === "catalog"}
             className={`${styles.viewBtn} ${view === "catalog" ? styles.viewBtnOn : ""}`}
-            onClick={() => setView("catalog")}
+            onClick={() => switchView("catalog")}
           >
             <List size={16} /> Catalog
           </button>
@@ -574,7 +573,7 @@ function StreamExperience() {
           );
         })()
       ) : (
-        <CatalogView movies={movies} onOpen={openModal} initialQuery={urlQuery} />
+        <CatalogView key={urlQuery} movies={movies} onOpen={openModal} initialQuery={urlQuery} />
       )}
 
       {/* ══════════ FOOTER ══════════ */}

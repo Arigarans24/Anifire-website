@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Bookmark, Play, Star, Trash2 } from "lucide-react";
@@ -73,7 +74,7 @@ function MyListContent() {
             {items.map((m) => (
               <div key={m.id} className={styles.card}>
                 <Link href={`/anime/${m.id}`} className={styles.poster}>
-                  <img src={m.imageUrl} alt={m.title} />
+                  <Image src={m.imageUrl} alt={m.title} width={300} height={420} unoptimized />
                   <span className={styles.playOverlay}>
                     <Play size={22} fill="currentColor" />
                   </span>

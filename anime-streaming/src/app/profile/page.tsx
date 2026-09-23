@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import {
@@ -226,7 +227,7 @@ function ProfileContent() {
 
       {/* ════════ BANNER ════════ */}
       <div className={styles.banner}>
-        <img src={banner} alt="" className={styles.bannerImg} />
+        <Image src={banner} alt="" className={styles.bannerImg} width={1600} height={320} unoptimized />
         <div className={styles.bannerScrim} />
         <span className={styles.idBadge}>ID: {profile?.id ?? "—"}</span>
         <button
@@ -249,7 +250,7 @@ function ProfileContent() {
         {/* ════════ IDENTITY ════════ */}
         <header className={styles.identity}>
           <div className={styles.avatarWrap}>
-            <img src={avatar} alt={name} className={styles.avatar} />
+            <Image src={avatar} alt={name} className={styles.avatar} width={160} height={160} unoptimized />
             <button
               className={styles.avatarEdit}
               type="button"
@@ -533,7 +534,7 @@ function ProfileContent() {
               </div>
 
               <form className={styles.commentForm} onSubmit={submitComment}>
-                <img src={avatar} alt="" className={styles.cFormAvatar} />
+                <Image src={avatar} alt="" className={styles.cFormAvatar} width={48} height={48} unoptimized />
                 <input
                   className={styles.commentInput}
                   placeholder="Leave a comment…"
@@ -553,7 +554,7 @@ function ProfileContent() {
               <div className={styles.commentList}>
                 {comments.map((c) => (
                   <article key={c.id} className={styles.comment}>
-                    <img src={c.avatar} alt={c.name} className={styles.cAvatar} />
+                    <Image src={c.avatar} alt={c.name} className={styles.cAvatar} width={48} height={48} unoptimized />
                     <div className={styles.cBody}>
                       <div className={styles.cMeta}>
                         <span className={styles.cName}>{c.name}</span>

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -695,7 +696,7 @@ export default function AdminPage() {
           <div className={styles.table}>
             {movies.map((movie) => (
               <article key={movie.id} className={styles.row}>
-                <img src={movie.imageUrl} alt="" />
+                <Image src={movie.imageUrl} alt="" width={72} height={108} unoptimized />
                 <div>
                   <strong>{movie.title}</strong>
                   <span>{movie.genre}</span>
