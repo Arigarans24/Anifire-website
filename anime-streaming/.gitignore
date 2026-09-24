@@ -45,3 +45,6 @@ next-env.d.ts
 
 # Local LLM-translated subtitle cache
 .cache/
+
+.vercel
+.env*

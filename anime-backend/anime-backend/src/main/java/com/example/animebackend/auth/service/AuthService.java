@@ -139,6 +139,9 @@ public class AuthService {
             }
             throw ApiException.unauthorized("invalid_credentials", "Invalid email or password.");
         }
+        if (user == null) {
+            throw ApiException.unauthorized("invalid_credentials", "Invalid email or password.");
+        }
 
         // Require a verified email unless dev auto-verify is on. The verification
         // link is printed in the backend terminal by EmailService.

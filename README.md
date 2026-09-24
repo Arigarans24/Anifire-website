@@ -28,6 +28,18 @@ bootstrap path without hard-coded credentials.
 
 ## How To Run
 
+Windows users can start the full stack from PowerShell:
+
+```powershell
+./dev.ps1
+```
+
+If you are using Git Bash or WSL, the bash launcher also works:
+
+```bash
+bash ./dev.sh
+```
+
 Start PostgreSQL:
 
 ```bash

@@ -13,36 +13,50 @@ backend_pid=""
 frontend_pid=""
 cleanup_done=false
 
-# Recursively kill a process and all of its descendants (npm spawns next-server,
-# gradle spawns the JVM — a plain `kill <pid>` would orphan the children).
 kill_tree() {
-  local pid="$1" child
-  for child in $(pgrep -P "$pid" 2>/dev/null); do
+  local pid="${1:-}"
+  [[ -z "$pid" ]] && return
+  if ! kill -0 "$pid" 2>/dev/null; then
+    return
+  fi
+
+  local child
+  for child in $(ps -o pid= --ppid "$pid" 2>/dev/null || true); do
     kill_tree "$child"
   done
+
   kill "$pid" 2>/dev/null || true
 }
 
-# Free a TCP port left occupied by a previous run (stale gradle/JVM or next-server)
-# so the app can bind instead of failing with "Port already in use".
 free_port() {
-  local port="$1" pids
-  pids=$(lsof -ti "tcp:$port" 2>/dev/null || true)
+  local port="$1" pids=""
+
+  if command -v lsof >/dev/null 2>&1; then
+    pids=$(lsof -ti "tcp:$port" 2>/dev/null || true)
+  elif command -v fuser >/dev/null 2>&1; then
+    pids=$(fuser -n tcp "$port" 2>/dev/null || true)
+  else
+    echo "▸ Port $port is in use, but no lsof/fuser is installed. Skipping auto-free; stop the process manually if needed."
+    return
+  fi
+
   if [ -n "$pids" ]; then
     echo "▸ Port $port busy — freeing (pids: $pids)"
-    kill $pids 2>/dev/null || true
+    for pid in $pids; do
+      kill_tree "$pid"
+    done
     sleep 1
-    pids=$(lsof -ti "tcp:$port" 2>/dev/null || true)
-    [ -n "$pids" ] && kill -9 $pids 2>/dev/null || true
   fi
 }
 
 cleanup() {
-  $cleanup_done && return
+  if $cleanup_done; then
+    return
+  fi
   cleanup_done=true
   echo ""
   echo "▸ Shutting down..."
-  [ -n "$backend_pid" ]  && kill_tree "$backend_pid"
+  [ -n "$backend_pid" ] && kill_tree "$backend_pid"
   [ -n "$frontend_pid" ] && kill_tree "$frontend_pid"
   docker compose -f "$COMPOSE_FILE" down 2>/dev/null || true
   echo "▸ Done."
@@ -50,6 +64,11 @@ cleanup() {
 trap cleanup INT TERM EXIT
 
 echo "▸ Starting Postgres (docker)..."
+if ! command -v docker >/dev/null 2>&1; then
+  echo "Docker is required but not installed or not on PATH."
+  exit 1
+fi
+
 docker compose -f "$COMPOSE_FILE" up -d
 sleep 2
 
@@ -76,5 +95,4 @@ cat <<BANNER
 
 BANNER
 
-# Stay in the foreground until both apps exit (or Ctrl-C).
 wait "$backend_pid" "$frontend_pid"
