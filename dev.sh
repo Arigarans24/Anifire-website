@@ -4,6 +4,13 @@
 # Logs are merged with colored [backend]/[frontend] prefixes.
 # Ctrl-C tears everything down (apps + docker) cleanly.
 
+if ! command -v bash >/dev/null 2>&1; then
+  echo "Bash is not available in this environment. Use PowerShell instead:"
+  echo "  pwsh -File ./dev.ps1"
+  echo "  or run the backend/frontend commands directly in separate terminals."
+  exit 1
+fi
+
 set -euo pipefail
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
