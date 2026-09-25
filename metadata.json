@@ -1,0 +1,6 @@
+{
+  "name": "Anifire",
+  "description": "Stream the best anime series online with personalized recommendations, catalog browsing, and synchronized player.",
+  "permissions": [],
+  "capabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
